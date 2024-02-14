@@ -54,12 +54,12 @@ int main(int argc, char *argv[]) {
     gNumChars = getNumChars (gFragmentsInput, gNumFragments);
     gFileLength = getFileLength (gNumChars, gNumFiles);
 
-    printf ("Case %2d\n", i);
-    printf ("--------\n");
+    printf ("Case %2d:\n", i);
     printf ("  gNumFragments: %d\n", gNumFragments);
     printf ("  gNumFiles: %d\n", gNumFiles);
     printf ("  gNumChars: %d\n", gNumChars);
-    printf ("  gFileLength: %d\n\n", gFileLength);
+    printf ("  gFileLength: %d\n", gFileLength);
+    printf ("\n");
   }
 
   

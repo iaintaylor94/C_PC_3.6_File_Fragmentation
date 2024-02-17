@@ -11,10 +11,12 @@ FILE *gInputFile;
 void usage (char *);
 
 // File I/O
-const int kMaxLineLength = 257;
+const int kMaxFileLength = 256;
+const int kMaxLineLength = kMaxFileLength + 1;
 int getNumCases (FILE *);
 
-const int kMaxNumFragments = 288;
+const int kMaxNumFiles = 144;
+const int kMaxNumFragments = kMaxNumFiles * 2;
 char gFragmentsInput [kMaxNumFragments][kMaxLineLength];
 
 int gNumFragments = 0;
@@ -28,6 +30,18 @@ int getNumChars (char [kMaxNumFragments][kMaxLineLength], int);
 int getFileLength (int, int);
 
 void printFragments (char [kMaxNumFragments][kMaxLineLength], int);
+
+
+// Dictionary
+struct dictionary {
+  char files [kMaxNumFiles][kMaxLineLength];
+  int numFiles;
+} gDictionary;
+
+void combineFragments (char [kMaxLineLength], char [kMaxLineLength], char [kMaxLineLength]);
+bool inDictionary (char [kMaxLineLength]);
+void addToDictionary (char [kMaxLineLength]);
+void printDictionary (struct dictionary);
 
 
 int main(int argc, char *argv[]) {
@@ -59,6 +73,33 @@ int main(int argc, char *argv[]) {
     printf ("  gNumFiles: %d\n", gNumFiles);
     printf ("  gNumChars: %d\n", gNumChars);
     printf ("  gFileLength: %d\n", gFileLength);
+    printf ("\n");
+
+
+    
+    for (int first = 0; first < gNumFragments; first++) {
+      for (int second = 0; second < gNumFragments; second++) {
+        if (strlen(gFragmentsInput[first]) + strlen(gFragmentsInput[second]) != gFileLength) {
+          continue;
+        }
+        else if (first == second) {
+          continue;
+        }
+        else {
+          char combination [kMaxLineLength];
+          combineFragments (combination, gFragmentsInput[first], gFragmentsInput[second]);
+          if (!inDictionary (combination)) {
+            addToDictionary (combination);
+          }
+
+          combineFragments (combination, gFragmentsInput[second], gFragmentsInput[first]);
+          if (!inDictionary (combination)) {
+            addToDictionary (combination);
+          }
+        }
+      }
+    }
+    printDictionary (gDictionary);
     printf ("\n");
   }
 
@@ -128,4 +169,32 @@ int getNumChars (char fragmentInput [kMaxNumFragments][kMaxLineLength], int numF
 }
 int getFileLength (int numChars, int numFiles) {
   return numChars / numFiles;
+}
+
+
+// Dictionary
+void combineFragments (char combination [kMaxLineLength], char first [kMaxLineLength], char second [kMaxLineLength]) {
+  strcpy (combination, first);
+  strcat (combination, second);
+  combination [strcspn(combination, "\n")] = '\0';
+}
+bool inDictionary (char file [kMaxLineLength]) {
+  // Search Dictionary
+  for (int i = 0; i < gDictionary.numFiles; i++) {
+    if (!strcmp (file, gDictionary.files[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+void addToDictionary (char file [kMaxLineLength]) {
+  // Add to Dictionary
+  strcpy (gDictionary.files[gDictionary.numFiles], file);
+  gDictionary.numFiles++;
+}
+void printDictionary (struct dictionary gDictionary) {
+  printf ("DICTIONARY:\n");
+  for (int i = 0; i < gDictionary.numFiles; i++) {
+    printf ("%s\n", gDictionary.files[i]);
+  }
 }

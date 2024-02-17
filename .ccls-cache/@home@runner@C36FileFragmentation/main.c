@@ -33,14 +33,20 @@ void printFragments (char [kMaxNumFragments][kMaxLineLength], int);
 
 
 // Dictionary
-struct dictionary {
+struct subDictionary {
   char files [kMaxNumFiles][kMaxLineLength];
   int numFiles;
+};
+struct dictionary {
+  struct subDictionary chapter [kMaxLineLength]; // [0] == Total combination of all files
+  bool emptyChapter [kMaxLineLength];
 } gDictionary;
 
+
+
 void combineFragments (char [kMaxLineLength], char [kMaxLineLength], char [kMaxLineLength]);
-bool inDictionary (char [kMaxLineLength]);
-void addToDictionary (char [kMaxLineLength]);
+bool inDictionary (char [kMaxLineLength], int);
+void addToDictionary (int, char [kMaxLineLength], struct dictionary *);
 void printDictionary (struct dictionary);
 
 
@@ -87,15 +93,15 @@ int main(int argc, char *argv[]) {
         }
         else {
           char combination [kMaxLineLength];
+          int minLength = strlen(gFragmentsInput[first]) < strlen(gFragmentsInput[second]) ?
+                          strlen(gFragmentsInput[first]) : strlen(gFragmentsInput[second]);
+          // permutation 1
           combineFragments (combination, gFragmentsInput[first], gFragmentsInput[second]);
-          if (!inDictionary (combination)) {
-            addToDictionary (combination);
-          }
+          addToDictionary (minLength, combination, &gDictionary);
 
+          // Permutation 2
           combineFragments (combination, gFragmentsInput[second], gFragmentsInput[first]);
-          if (!inDictionary (combination)) {
-            addToDictionary (combination);
-          }
+          addToDictionary (minlength, combination, &gDictionary);
         }
       }
     }
@@ -178,23 +184,42 @@ void combineFragments (char combination [kMaxLineLength], char first [kMaxLineLe
   strcat (combination, second);
   combination [strcspn(combination, "\n")] = '\0';
 }
-bool inDictionary (char file [kMaxLineLength]) {
+
+
+/*
+// Dictionary
+struct subDictionary {
+  char files [kMaxNumFiles][kMaxLineLength];
+  int numFiles;
+};
+struct dictionary {
+  struct subDictionary chapter [kMaxLineLength]; // [0] == Total combination of all files
+  bool emptyChapter [kMaxLineLength];
+} gDictionary;
+*/
+
+bool inDictionary (char file [kMaxLineLength], int c) {
   // Search Dictionary
-  for (int i = 0; i < gDictionary.numFiles; i++) {
-    if (!strcmp (file, gDictionary.files[i])) {
+  for (int i = 0; i < gDictionary.chapter[c].numFiles; i++) {
+    if (!strcmp (file, gDictionary.chapter[c].files[i])) {
       return true;
     }
   }
   return false;
 }
-void addToDictionary (char file [kMaxLineLength]) {
-  // Add to Dictionary
-  strcpy (gDictionary.files[gDictionary.numFiles], file);
-  gDictionary.numFiles++;
-}
-void printDictionary (struct dictionary gDictionary) {
-  printf ("DICTIONARY:\n");
-  for (int i = 0; i < gDictionary.numFiles; i++) {
-    printf ("%s\n", gDictionary.files[i]);
+void addToDictionary (int minLength, char file [kMaxLineLength], struct dictionary *d) {
+  // Add to Dictionary [0]
+  if (!inDictionary (file, 0)) {
+    strcpy (d->chapter[0].files[d->chapter[0].numFiles], file);
+    d->chapter[0].numFiles++;
+    d->emptyChapter[0] = false;
   }
+  // Add to Dictionary [minLength]
+  if (!inDictionary (file, minLength)) {
+    strcpy (d->chapter[minLength].files[d->chapter[minLength].numFiles], file);
+    d->chapter[minLength].numFiles++;
+    d->emptyChapter[minLength] = false;
+  }
+}
+void printDictionary (struct dictionary d) {
 }

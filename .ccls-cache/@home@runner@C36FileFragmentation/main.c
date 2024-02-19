@@ -50,6 +50,10 @@ void addToDictionary (int, char [kMaxLineLength], struct dictionary *);
 void printChapter (struct dictionary*, int);
 void printDictionary (struct dictionary*);
 
+void intersection (struct chapter *, struct chapter *);
+void fileIntersection (struct dictionary *);
+void possibleFile (struct dictionary *);
+
 
 int main(int argc, char *argv[]) {
   
@@ -109,7 +113,9 @@ int main(int argc, char *argv[]) {
 
     printDictionary (&gDictionary);
 
-    
+
+    fileIntersection (&gDictionary);
+    possibleFile (&gDictionary);
   }
 
 
@@ -232,9 +238,36 @@ void printDictionary (struct dictionary *d) {
   for (int i = 0; i < d->numChapters; i++) {
     printChapter (d, i);
   }
-
-
-
-  
-  
+  printf ("\n");
+}
+void intersection (struct chapter *accumulator, struct chapter *comparator) {
+  for (int i = 0; i < accumulator->numFiles; i++) {
+    bool intersection = false;
+    for (int j = 0; j < comparator->numFiles; j++) {
+      if (!strcmp (accumulator->files[i], comparator->files[j])) {
+        intersection = true;
+        break;
+      }
+    }
+    if (!intersection) {
+      strcpy (accumulator->files[i], "");
+    }
+  }
+}
+void fileIntersection (struct dictionary *d) {
+  for (int i = 1; i < d->numChapters; i++) {
+    if (d->chapter[i].numFiles != 0) {
+      intersection (&d->chapter[0], &d->chapter[i]);
+    }
+  }
+}
+void possibleFile (struct dictionary *d) {
+  printf ("POSSIBLE FILES\n");
+  printf ("--------------\n");
+  for (int i = 0; i < d->chapter[0].numFiles; i++) {
+    if (!strcmp (d->chapter[0].files[i], "")) {
+      continue;
+    }
+    else (printf ("%s\n", d->chapter[0].files[i]));
+  }
 }

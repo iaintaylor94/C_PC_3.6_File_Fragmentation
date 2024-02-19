@@ -107,7 +107,6 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    printf ("numChapters: %d\n", gDictionary.numChapters);
     printDictionary (&gDictionary);
 
     
@@ -216,20 +215,19 @@ void addToDictionary (int minLength, char file [kMaxLineLength], struct dictiona
 }
 
 void printChapter (struct dictionary *d, int c) {
-if (d->chapter[c].numFiles == 0) {
-  //return;
-}
-printf ("  chapter[%3d]:\n", c);
-printf ("    numFiles = %3d\n", d->chapter[c].numFiles);
+  if (d->chapter[c].numFiles == 0) {
+    return;
+  }
+  printf ("  chapter[%3d]: (%3d files)\n", c, d->chapter[c].numFiles);
+
+  for (int i = 0; i < d->chapter[c].numFiles; i++) {
+    printf ("    %s\n", d->chapter[c].files[i]);
+  }
 }
 
 void printDictionary (struct dictionary *d) {
-  printf ("numChapters: %d\n", d->numChapters);
-  
-  printf ("DICTIONARY\n");
-  printf ("----------\n");
-
-  printf ("numChapters: %d\n", d->numChapters);
+  printf ("DICTIONARY (%3d chapters)\n", d->numChapters);
+  printf ("-------------------------\n");
 
   for (int i = 0; i < d->numChapters; i++) {
     printChapter (d, i);
